@@ -1,0 +1,5 @@
+node_modules/
+dist/
+
+# Test credentials — never commit
+tests/config.js
