@@ -1,0 +1,47 @@
+{
+	"name": "n8n-nodes-wildix",
+	"version": "0.1.0",
+	"description": "n8n community node for Wildix UCaaS platform",
+	"keywords": [
+		"n8n-community-node-package"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/enzo-piccolino/n8n-nodes-wildix#readme",
+	"author": {
+		"name": "Enzo Piccolino",
+		"email": "enzo.piccolino@n8n.io"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/enzo-piccolino/n8n-nodes-wildix"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/WildixOAuth2Api.credentials.js",
+			"dist/credentials/WildixBearerApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Wildix/Wildix.node.js",
+			"dist/nodes/Wildix/WildixTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "^9"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
