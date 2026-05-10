@@ -12,13 +12,16 @@ Wildix is a cloud-based UCaaS platform providing business telephony (PBX/SIP/Web
 
 ## Installation
 
-Follow the [n8n community nodes installation guide](https://docs.n8n.io/integrations/community-nodes/installation/).
+This node can be installed on any self-hosted n8n instance.
 
-In your n8n instance go to **Settings → Community Nodes → Install** and enter:
+1. Open your n8n instance and go to **Settings → Community Nodes**
+2. Click **Install**
+3. Enter `n8n-nodes-wildix` and click **Install**
+4. Restart n8n when prompted
 
-```
-n8n-nodes-wildix
-```
+The Wildix and Wildix Trigger nodes will then appear in the node picker.
+
+> **Note:** Community nodes are not available on n8n Cloud. You need a self-hosted instance (Docker, npm, or desktop app).
 
 ---
 
