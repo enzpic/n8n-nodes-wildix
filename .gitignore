@@ -1,8 +1,18 @@
 node_modules/
 dist/
 
-# Test credentials — never commit
-tests/config.js
+# Mac metadata
+.DS_Store
 
-# Claude Code local settings (may contain tokens/secrets)
-.claude/settings.local.json
+# Claude Code (tool configs and local settings with potential secrets)
+.claude/
+CLAUDE.md
+
+# Internal planning / dev notes
+PROJECT.md
+
+# Dev artifacts and local test tooling
+redoc.standalone.js
+test-endpoints.mjs
+tests/
+*.tgz
