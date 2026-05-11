@@ -3,3 +3,6 @@ dist/
 
 # Test credentials — never commit
 tests/config.js
+
+# Claude Code local settings (may contain tokens/secrets)
+.claude/settings.local.json
