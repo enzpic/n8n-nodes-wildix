@@ -21,6 +21,7 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
+		"test": "npm run build && npm run lint",
 		"prepublishOnly": "n8n-node prerelease",
 		"release": "n8n-node release"
 	},
