@@ -77,10 +77,13 @@ export class WildixOAuth2Api implements ICredentialType {
 			default: '',
 		},
 		{
+			// Wildix's /authorization/oauth2Token reads client_id / client_secret from the
+			// POST body — using the default 'header' (HTTP Basic) yields
+			// {"error":"invalid_client","error_description":"Empty client ID"}.
 			displayName: 'Authentication',
 			name: 'authentication',
 			type: 'hidden',
-			default: 'header',
+			default: 'body',
 		},
 	];
 }

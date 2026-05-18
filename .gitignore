@@ -16,3 +16,5 @@ redoc.standalone.js
 test-endpoints.mjs
 tests/
 *.tgz
+start-n8n.sh
+.n8n-tunnel-url
