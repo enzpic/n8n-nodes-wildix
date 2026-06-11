@@ -13,6 +13,7 @@ export const pbxSettingsOperations: INodeProperties[] = [
 			{ name: 'Get NTP', value: 'getNtp', action: 'Get NTP settings', description: 'Return NTP server settings' },
 			{ name: 'Get Settings', value: 'getSettings', action: 'Get PBX general settings', description: 'Return PBX general settings' },
 			{ name: 'Get SMTP', value: 'getSmtp', action: 'Get SMTP settings', description: 'Return SMTP email settings' },
+			{ name: 'Get SMTP Test Status', value: 'getSmtpTestStatus', action: 'Get SMTP test status', description: 'Poll the result of a previously started SMTP test' },
 			{ name: 'Test SMTP', value: 'testSmtp', action: 'Test SMTP settings', description: 'Send a test email using the current SMTP settings' },
 			{ name: 'Update HTTP Proxy', value: 'updateHttpProxy', action: 'Update HTTP proxy settings', description: 'Update HTTP proxy settings' },
 			{ name: 'Update NTP', value: 'updateNtp', action: 'Update NTP settings', description: 'Update NTP server settings' },
@@ -68,6 +69,17 @@ export const pbxSettingsFields: INodeProperties[] = [
 		placeholder: 'test@example.com',
 		displayOptions: { show: { resource: ['pbxSettings'], operation: ['testSmtp'] } },
 		description: 'Email address to send the test message to',
+	},
+
+	// ── Get SMTP Test Status ───────────────────────────────────────────────────
+	{
+		displayName: 'Test ID',
+		name: 'testId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['pbxSettings'], operation: ['getSmtpTestStatus'] } },
+		description: 'ID of the SMTP test returned by the Test SMTP operation',
 	},
 
 	// ── Update HTTP Proxy ─────────────────────────────────────────────────────

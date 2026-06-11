@@ -33,6 +33,12 @@ export const deviceOperations: INodeProperties[] = [
 				description: 'Disconnect a device from the PBX',
 			},
 			{
+				name: 'Get iOS Config',
+				value: 'getIosConfig',
+				action: 'Get an ios config',
+				description: 'Retrieve the iOS provisioning configuration',
+			},
+			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many devices',
@@ -74,6 +80,20 @@ export const deviceOperations: INodeProperties[] = [
 ];
 
 export const deviceFields: INodeProperties[] = [
+	// ── Get iOS Config ─────────────────────────────────────────────────────────
+	{
+		displayName: 'Options',
+		name: 'iosConfigOptions',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: { show: { resource: ['device'], operation: ['getIosConfig'] } },
+		options: [
+			{ displayName: 'Fields', name: 'fields', type: 'string', default: '', description: 'Comma-separated list of fields to return' },
+			{ displayName: 'Filter', name: 'filter', type: 'string', default: '', description: 'Filter groups (comma-separated), each requiring the relevant ACL permission' },
+		],
+	},
+
 	// ── Shared: MAC address ────────────────────────────────────────────────────
 	{
 		displayName: 'MAC Address',

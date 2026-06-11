@@ -14,6 +14,7 @@ export const applicationOperations: INodeProperties[] = [
 			{ name: 'Delete Simple Token', value: 'deleteSimpleToken', action: 'Delete a simple token application', description: 'Delete a simple token application by ID' },
 			{ name: 'Get S2S Applications', value: 'getS2s', action: 'Get S2S applications', description: 'Return the list of server-to-server applications' },
 			{ name: 'Get Simple Tokens', value: 'getSimpleTokens', action: 'Get simple token applications', description: 'Return the list of simple token applications' },
+			{ name: 'Update S2S Application', value: 'updateS2s', action: 'Update an S2S application', description: 'Update a server-to-server application by ID' },
 			{ name: 'Update Simple Token', value: 'updateSimpleToken', action: 'Update a simple token application', description: 'Update a simple token application by ID' },
 		],
 		default: 'getSimpleTokens',
@@ -31,10 +32,25 @@ export const applicationFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['application'],
-				operation: ['updateSimpleToken', 'deleteSimpleToken', 'deleteS2s'],
+				operation: ['updateSimpleToken', 'deleteSimpleToken', 'deleteS2s', 'updateS2s'],
 			},
 		},
 		description: 'ID of the application',
+	},
+
+	// ── Update S2S ──────────────────────────────────────────────────────────────
+	{
+		displayName: 'Update Fields',
+		name: 'updateS2sFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['application'], operation: ['updateS2s'] } },
+		options: [
+			{ displayName: 'Name', name: 'name', type: 'string', default: '', description: 'Application name' },
+			{ displayName: 'Description', name: 'description', type: 'string', default: '', description: 'Application description' },
+			{ displayName: 'Permissions (JSON)', name: 'permissions', type: 'json', default: '[]', description: 'Array of permission strings' },
+		],
 	},
 
 	// ── Create Simple Token ───────────────────────────────────────────────────

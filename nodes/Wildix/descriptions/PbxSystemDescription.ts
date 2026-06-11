@@ -9,6 +9,7 @@ export const pbxSystemOperations: INodeProperties[] = [
 		displayOptions: { show: { resource: ['pbxSystem'] } },
 		options: [
 			{ name: 'Get Candidates', value: 'getCandidates', action: 'Get PBX candidates', description: 'Return the list of PBX network candidates' },
+			{ name: 'Get Dictionaries', value: 'getDictionaries', action: 'Get dialplan dictionaries', description: 'Return a list of dialplan dictionaries' },
 			{ name: 'Get Ports Status', value: 'getPorts', action: 'Get PBX port status', description: 'Return the status of PBX ports' },
 			{ name: 'Get Version', value: 'getVersion', action: 'Get PBX version', description: 'Return the PBX firmware version' },
 			{ name: 'Ping', value: 'ping', action: 'Ping the PBX', description: 'Check PBX connectivity' },
@@ -18,4 +19,15 @@ export const pbxSystemOperations: INodeProperties[] = [
 	},
 ];
 
-export const pbxSystemFields: INodeProperties[] = [];
+export const pbxSystemFields: INodeProperties[] = [
+	// ── Get Dictionaries ───────────────────────────────────────────────────────
+	{
+		displayName: 'Items',
+		name: 'items',
+		type: 'string',
+		default: '',
+		placeholder: 'countries,languages',
+		displayOptions: { show: { resource: ['pbxSystem'], operation: ['getDictionaries'] } },
+		description: 'Comma-separated list of dictionaries to return. Leave empty to return all.',
+	},
+];

@@ -27,6 +27,24 @@ export const callOperations: INodeProperties[] = [
 				description: 'Transfer a call without consultation',
 			},
 			{
+				name: 'Get Call Recordings',
+				value: 'getRecordings',
+				action: 'Get call recordings',
+				description: 'Get recordings of an active call by SIP channel',
+			},
+			{
+				name: 'Get Call Status',
+				value: 'getStatus',
+				action: 'Get call status',
+				description: 'Get the status of an active call by SIP channel',
+			},
+			{
+				name: 'Get Call Tags',
+				value: 'getTags',
+				action: 'Get call tags',
+				description: 'Get the tags of an active call by SIP channel',
+			},
+			{
 				name: 'Hang Up',
 				value: 'hangup',
 				action: 'Hang up a call',
@@ -51,6 +69,12 @@ export const callOperations: INodeProperties[] = [
 				description: 'Initiate a call from a specific device to a destination',
 			},
 			{
+				name: 'Make Call (Legacy)',
+				value: 'makeCallLegacy',
+				action: 'Make a call legacy',
+				description: 'Initiate a call using the legacy v1 Calls endpoint',
+			},
+			{
 				name: 'Originate',
 				value: 'originate',
 				action: 'Originate a call',
@@ -63,16 +87,40 @@ export const callOperations: INodeProperties[] = [
 				description: 'Full AMI-style originate with channel, context, caller ID and more',
 			},
 			{
+				name: 'Originate Mobility Call',
+				value: 'originateMobility',
+				action: 'Originate a mobility call',
+				description: 'Trigger a mobility call to the given number',
+			},
+			{
 				name: 'Send DTMF',
 				value: 'dtmf',
 				action: 'Send DTMF',
 				description: 'Send DTMF tones during a call',
 			},
 			{
+				name: 'Send DTMF (by Channel)',
+				value: 'dtmfByChannel',
+				action: 'Send DTMF by channel',
+				description: 'Send a DTMF code to an active call by SIP channel (legacy v1)',
+			},
+			{
 				name: 'Set Active Device',
 				value: 'setActiveDevice',
 				action: 'Set active device',
 				description: 'Set the active device for call control',
+			},
+			{
+				name: 'Set Call Tags',
+				value: 'setTags',
+				action: 'Set call tags',
+				description: 'Set the tags of an active call by SIP channel',
+			},
+			{
+				name: 'Transfer (by Channel)',
+				value: 'transferByChannel',
+				action: 'Transfer a call by channel',
+				description: 'Transfer an active call by SIP channel (legacy v1, redirect or bridge)',
 			},
 			{
 				name: 'Unhold',
@@ -402,5 +450,150 @@ export const callFields: INodeProperties[] = [
 		default: '',
 		displayOptions: { show: { resource: ['call'], operation: ['setActiveDevice'] } },
 		description: 'ID of the device to set as active',
+	},
+
+	// ── Legacy v1 Calls: SIP channel ───────────────────────────────────────────
+	{
+		displayName: 'SIP Channel',
+		name: 'callChannel',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'SIP/20-00000030',
+		displayOptions: {
+			show: {
+				resource: ['call'],
+				operation: ['getStatus', 'getRecordings', 'getTags', 'setTags', 'dtmfByChannel', 'transferByChannel'],
+			},
+		},
+		description: 'SIP channel of the active call (e.g. SIP/20-00000030); URL-encoding is handled automatically',
+	},
+
+	// ── Set Call Tags ──────────────────────────────────────────────────────────
+	{
+		displayName: 'Tags',
+		name: 'tags',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'tag1,tag2',
+		displayOptions: { show: { resource: ['call'], operation: ['setTags'] } },
+		description: 'Comma-separated list of tags to set on the call',
+	},
+
+	// ── Make Call (Legacy) ─────────────────────────────────────────────────────
+	{
+		displayName: 'Number',
+		name: 'number',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '40',
+		displayOptions: { show: { resource: ['call'], operation: ['makeCallLegacy'] } },
+		description: 'The number to call',
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'makeCallLegacyFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['call'], operation: ['makeCallLegacy'] } },
+		options: [
+			{
+				displayName: 'Device',
+				name: 'device',
+				type: 'string',
+				default: '',
+				placeholder: 'any_device',
+				description: 'Device type (e.g. mobility, any_device, or a SIP URI)',
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				description: 'User name to present',
+			},
+		],
+	},
+
+	// ── Send DTMF (by Channel) ─────────────────────────────────────────────────
+	{
+		displayName: 'DTMF Code',
+		name: 'dtmf',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '1',
+		displayOptions: { show: { resource: ['call'], operation: ['dtmfByChannel'] } },
+		description: 'DTMF code to send (0–9, *, #)',
+	},
+	{
+		displayName: 'Send on Bridged Channel',
+		name: 'sendOnBridgedChannel',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { resource: ['call'], operation: ['dtmfByChannel'] } },
+		description: 'Whether to send the DTMF code to the bridged channel instead of the current one',
+	},
+
+	// ── Transfer (by Channel) ──────────────────────────────────────────────────
+	{
+		displayName: 'To',
+		name: 'transferTo',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '333 or +391234567890 or SIP/333-00000193',
+		displayOptions: { show: { resource: ['call'], operation: ['transferByChannel'] } },
+		description: 'Number or channel to transfer the call to',
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'transferByChannelFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['call'], operation: ['transferByChannel'] } },
+		options: [
+			{
+				displayName: 'Context',
+				name: 'context',
+				type: 'string',
+				default: '',
+				description: 'Dialplan context (only for type Redirect)',
+			},
+			{
+				displayName: 'Priority',
+				name: 'priority',
+				type: 'string',
+				default: '',
+				description: 'Dialplan priority (only for type Redirect)',
+			},
+			{
+				displayName: 'Type',
+				name: 'type',
+				type: 'options',
+				default: 'Redirect',
+				options: [
+					{ name: 'Redirect', value: 'Redirect' },
+					{ name: 'Bridge', value: 'Bridge' },
+				],
+				description: 'Transfer type',
+			},
+		],
+	},
+
+	// ── Originate Mobility Call ────────────────────────────────────────────────
+	{
+		displayName: 'Number',
+		name: 'mobilityNumber',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '391234567890',
+		displayOptions: { show: { resource: ['call'], operation: ['originateMobility'] } },
+		description: 'The phone number to call',
 	},
 ];

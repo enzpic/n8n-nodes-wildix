@@ -245,6 +245,13 @@ export class Wildix implements INodeType {
 						const time = this.getNodeParameter('time', i) as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/originate/AlarmClocks', { number, time, ...additionalFields }, {}, credentialType);
+					} else if (operation === 'get') {
+						const alarmClockId = this.getNodeParameter('alarmClockId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/originate/AlarmClocks/${alarmClockId}/`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+					} else if (operation === 'delete') {
+						const alarmClockId = this.getNodeParameter('alarmClockId', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/originate/AlarmClocks/${alarmClockId}`, {}, {}, credentialType);
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
 					}
@@ -283,6 +290,11 @@ export class Wildix implements INodeType {
 					} else if (operation === 'deleteS2s') {
 						const appId = this.getNodeParameter('appId', i) as string;
 						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/pbx/applications/s2s/${appId}`, {}, {}, credentialType);
+
+					} else if (operation === 'updateS2s') {
+						const appId = this.getNodeParameter('appId', i) as string;
+						const updateS2sFields = this.getNodeParameter('updateS2sFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/pbx/applications/s2s/${appId}`, updateS2sFields, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -369,7 +381,48 @@ export class Wildix implements INodeType {
 					} else if (operation === 'setActiveDevice') {
 						const user = this.getNodeParameter('user', i) as string;
 						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						responseData = await wildixApiRequest.call(this, 'POST', '/api/v2/call-control/set-active-device', { deviceId }, { user }, credentialType);
+						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v2/call-control/set-active-device', { deviceId }, { user }, credentialType);
+
+					} else if (operation === 'getStatus') {
+						const channel = encodeURIComponent(this.getNodeParameter('callChannel', i) as string);
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Calls/${channel}`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'getRecordings') {
+						const channel = encodeURIComponent(this.getNodeParameter('callChannel', i) as string);
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Calls/${channel}/Recordings`, {}, {}, credentialType);
+						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'getTags') {
+						const channel = encodeURIComponent(this.getNodeParameter('callChannel', i) as string);
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Calls/${channel}/Tags`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'setTags') {
+						const channel = encodeURIComponent(this.getNodeParameter('callChannel', i) as string);
+						const tags = this.getNodeParameter('tags', i) as string;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/Calls/${channel}/Tags/`, { tags }, {}, credentialType);
+
+					} else if (operation === 'makeCallLegacy') {
+						const number = this.getNodeParameter('number', i) as string;
+						const makeCallLegacyFields = this.getNodeParameter('makeCallLegacyFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/Calls/', { number, ...makeCallLegacyFields }, {}, credentialType);
+
+					} else if (operation === 'dtmfByChannel') {
+						const channel = encodeURIComponent(this.getNodeParameter('callChannel', i) as string);
+						const dtmf = this.getNodeParameter('dtmf', i) as string;
+						const sendOnBridgedChannel = this.getNodeParameter('sendOnBridgedChannel', i) as boolean;
+						responseData = await wildixApiRequest.call(this, 'POST', `/api/v1/Calls/${channel}/Dtmf`, { dtmf, sendOnBridgedChannel }, {}, credentialType);
+
+					} else if (operation === 'transferByChannel') {
+						const channel = encodeURIComponent(this.getNodeParameter('callChannel', i) as string);
+						const to = this.getNodeParameter('transferTo', i) as string;
+						const transferByChannelFields = this.getNodeParameter('transferByChannelFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'POST', `/api/v1/Calls/${channel}/Transfer`, { to, ...transferByChannelFields }, {}, credentialType);
+
+					} else if (operation === 'originateMobility') {
+						const number = this.getNodeParameter('mobilityNumber', i) as string;
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/originate/mobility', { number }, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -476,6 +529,12 @@ export class Wildix implements INodeType {
 						const extension = this.getNodeParameter('extension', i) as string;
 						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v2/call-groups/${groupId}/members/dynamic`, { extension }, {}, credentialType);
 
+					} else if (operation === 'forwardCall') {
+						const groupId = this.getNodeParameter('groupId', i) as string;
+						const sipCallId = this.getNodeParameter('sipCallId', i) as string;
+						const destination = this.getNodeParameter('destination', i) as string;
+						responseData = await wildixApiRequest.call(this, 'POST', `/api/v2/call-groups/${groupId}/forward`, { sipCallId, destination }, {}, credentialType);
+
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
 					}
@@ -498,9 +557,31 @@ export class Wildix implements INodeType {
 						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Colleagues/${colleagueId}`, {}, {}, credentialType);
 						responseData = (response.result as IDataObject) ?? {};
 
+					} else if (operation === 'getManyBasic') {
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const filters = this.getNodeParameter('filters', i) as IDataObject;
+						if (returnAll) {
+							responseData = await wildixApiRequestAllItems.call(this, '/api/v1/Colleagues', filters, credentialType);
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Colleagues', {}, { count: limit, ...filters }, credentialType);
+							responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
+						}
+
 					} else if (operation === 'getMe') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/personal/info', {}, {}, credentialType);
 						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'getUserPresence') {
+						const extension = this.getNodeParameter('presenceExtension', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/User/${extension}/Presence/`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'updateUserPresence') {
+						const extension = this.getNodeParameter('presenceExtension', i) as string;
+						const status = this.getNodeParameter('presenceStatus', i) as string;
+						const userPresenceFields = this.getNodeParameter('userPresenceFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/User/${extension}/Presence/`, { status, ...userPresenceFields }, {}, credentialType);
 
 					} else if (operation === 'create') {
 						const name = this.getNodeParameter('name', i) as string;
@@ -606,6 +687,11 @@ export class Wildix implements INodeType {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v2/call-control/list-devices', {}, { user }, credentialType);
 						responseData = ((response.result as IDataObject)?.devices as IDataObject[]) ?? [];
 
+					} else if (operation === 'getIosConfig') {
+						const iosConfigOptions = this.getNodeParameter('iosConfigOptions', i) as IDataObject;
+						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/iOS/Config/', {}, iosConfigOptions, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
 					} else if (operation === 'add') {
 						const macsRaw = this.getNodeParameter('macs', i) as string;
 						const macs = macsRaw.split(',').map((m) => m.trim()).filter(Boolean);
@@ -636,7 +722,7 @@ export class Wildix implements INodeType {
 					} else if (operation === 'connect') {
 						const mac = this.getNodeParameter('mac', i) as string;
 						const extension = this.getNodeParameter('extension', i) as string;
-						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/devices/connect', { mac, extension }, {}, credentialType);
+						responseData = await wildixApiRequest.call(this, 'POST', `/api/v1/Devices/${mac}/connect/`, { extension }, {}, credentialType);
 
 					} else if (operation === 'disconnect') {
 						const mac = this.getNodeParameter('mac', i) as string;
@@ -655,6 +741,25 @@ export class Wildix implements INodeType {
 					if (operation === 'getDialplans') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/PBX/Dialplans', {}, {}, credentialType);
 						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
+
+					} else if (operation === 'getDialplan') {
+						const dialplanId = this.getNodeParameter('dialplanId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/PBX/Dialplans/${dialplanId}/`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'createDialplan') {
+						const name = this.getNodeParameter('dialplanName', i) as string;
+						const createDialplanFields = this.getNodeParameter('createDialplanFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/PBX/Dialplans/', { name, ...createDialplanFields }, {}, credentialType);
+
+					} else if (operation === 'updateDialplan') {
+						const dialplanId = this.getNodeParameter('dialplanId', i) as string;
+						const updateDialplanFields = this.getNodeParameter('updateDialplanFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/PBX/Dialplans/${dialplanId}/`, updateDialplanFields, {}, credentialType);
+
+					} else if (operation === 'deleteDialplan') {
+						const dialplanIds = this.getNodeParameter('dialplanIds', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/PBX/Dialplans/${dialplanIds}/`, {}, {}, credentialType);
 
 					} else if (operation === 'getPagingGroups') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Dialplan/PagingGroups', {}, {}, credentialType);
@@ -739,6 +844,42 @@ export class Wildix implements INodeType {
 						const settings = this.getNodeParameter('settings', i, '{}') as IDataObject;
 						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v1/Dialplan/GeneralSettings', settings, {}, credentialType);
 
+					} else if (operation === 'getDbFamilyKeys') {
+						const family = encodeURIComponent(this.getNodeParameter('dbFamily', i) as string);
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Dialplan/DB/${family}/`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'getDbValue') {
+						const family = encodeURIComponent(this.getNodeParameter('dbFamily', i) as string);
+						const key = encodeURIComponent(this.getNodeParameter('dbKey', i) as string);
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Dialplan/DB/${family}/${key}+`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'addDbValue') {
+						const family = encodeURIComponent(this.getNodeParameter('dbFamily', i) as string);
+						const key = encodeURIComponent(this.getNodeParameter('dbKey', i) as string);
+						const value = this.getNodeParameter('dbValue', i) as string;
+						responseData = await wildixApiRequest.call(this, 'POST', `/api/v1/Dialplan/DB/${family}/${key}+/`, { value }, {}, credentialType);
+
+					} else if (operation === 'updateDbValue') {
+						const family = encodeURIComponent(this.getNodeParameter('dbFamily', i) as string);
+						const key = encodeURIComponent(this.getNodeParameter('dbKey', i) as string);
+						const value = this.getNodeParameter('dbValue', i) as string;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/Dialplan/DB/${family}/${key}+/`, { value }, {}, credentialType);
+
+					} else if (operation === 'deleteDbKey') {
+						const family = encodeURIComponent(this.getNodeParameter('dbFamily', i) as string);
+						const key = encodeURIComponent(this.getNodeParameter('dbKey', i) as string);
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Dialplan/DB/${family}/${key}+/`, {}, {}, credentialType);
+
+					} else if (operation === 'deleteDbFamily') {
+						const family = encodeURIComponent(this.getNodeParameter('dbFamily', i) as string);
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Dialplan/DB/${family}/`, {}, {}, credentialType);
+
+					} else if (operation === 'importTimeTables') {
+						const records = this.getNodeParameter('records', i, '[]') as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v1/Dialplan/timeTables/import/', { records }, {}, credentialType);
+
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
 					}
@@ -775,6 +916,25 @@ export class Wildix implements INodeType {
 					} else if (operation === 'getCallGroups') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Dialplan/CallGroups', {}, {}, credentialType);
 						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
+
+					} else if (operation === 'getCallGroupStat') {
+						const callGroupId = this.getNodeParameter('callGroupId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Dialplan/CallGroups/${callGroupId}/stat`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'createCallGroup') {
+						const title = this.getNodeParameter('callGroupTitle', i) as string;
+						const createCallGroupFields = this.getNodeParameter('createCallGroupFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/Dialplan/CallGroups', { title, ...createCallGroupFields }, {}, credentialType);
+
+					} else if (operation === 'updateCallGroup') {
+						const callGroupId = this.getNodeParameter('callGroupId', i) as string;
+						const data = this.getNodeParameter('updateCallGroupData', i, '{}') as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/Dialplan/CallGroups/${callGroupId}`, data, {}, credentialType);
+
+					} else if (operation === 'deleteCallGroup') {
+						const callGroupId = this.getNodeParameter('callGroupId', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Dialplan/CallGroups/${callGroupId}`, {}, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -851,6 +1011,11 @@ export class Wildix implements INodeType {
 						const email = this.getNodeParameter('email', i) as string;
 						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/PBX/settings/smtp/test', { email }, {}, credentialType);
 
+					} else if (operation === 'getSmtpTestStatus') {
+						const testId = this.getNodeParameter('testId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/PBX/settings/smtp/test/status/${testId}/`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
 					} else if (operation === 'getHttpProxy') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/PBX/settings/httpProxy', {}, {}, credentialType);
 						responseData = (response.result as IDataObject) ?? {};
@@ -885,8 +1050,15 @@ export class Wildix implements INodeType {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/PBX/candidates', {}, {}, credentialType);
 						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
 
+					} else if (operation === 'getDictionaries') {
+						const items = this.getNodeParameter('items', i, '') as string;
+						const qs: IDataObject = {};
+						if (items) qs.items = items.split(',').map((d) => d.trim()).filter(Boolean);
+						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Dictionaries', {}, qs, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
 					} else if (operation === 'reboot') {
-						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/PBX/System/Reboot', {}, {}, credentialType);
+						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v1/PBX/System/Reboot', {}, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -905,6 +1077,9 @@ export class Wildix implements INodeType {
 					} else if (operation === 'check') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/PBX/Upgrade/Check', {}, {}, credentialType);
 						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'startCheck') {
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/PBX/Upgrade/Check', {}, {}, credentialType);
 
 					} else if (operation === 'getSettings') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/PBX/Upgrade/Settings', {}, {}, credentialType);
@@ -935,18 +1110,10 @@ export class Wildix implements INodeType {
 					} else if (operation === 'resetToken') {
 						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/Personal/Token', {}, {}, credentialType);
 
-					} else if (operation === 'getPresence') {
-						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Personal/Presence', {}, {}, credentialType);
-						responseData = (response.result as IDataObject) ?? {};
-
 					} else if (operation === 'updatePresence') {
 						const status = this.getNodeParameter('status', i) as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v1/Personal/Presence', { status, ...additionalFields }, {}, credentialType);
-
-					} else if (operation === 'getPresenceLocation') {
-						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Personal/Presence/location', {}, {}, credentialType);
-						responseData = (response.result as IDataObject) ?? {};
 
 					} else if (operation === 'updatePresenceLocation') {
 						const location = this.getNodeParameter('location', i) as string;
@@ -957,7 +1124,13 @@ export class Wildix implements INodeType {
 						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
 
 					} else if (operation === 'getAcl') {
-						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Personal/Acl', {}, {}, credentialType);
+						const aclFilters = this.getNodeParameter('aclFilters', i, {}) as IDataObject;
+						const filterRows = (aclFilters.values as IDataObject[]) ?? [];
+						const qs: IDataObject = {};
+						for (const row of filterRows) {
+							qs[`filter[${row.kind as string}]`] = row.acl as string;
+						}
+						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Personal/Acl', {}, qs, credentialType);
 						responseData = (response.result as IDataObject) ?? {};
 
 					} else if (operation === 'getFeatures') {
@@ -966,15 +1139,19 @@ export class Wildix implements INodeType {
 
 					} else if (operation === 'updateFeatures') {
 						const features = this.getNodeParameter('features', i, '{}') as IDataObject;
-						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v2/personal/features', features, {}, credentialType);
-
-					} else if (operation === 'getRoster') {
-						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/personal/roster', {}, {}, credentialType);
-						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v2/personal/features', features, {}, credentialType);
 
 					} else if (operation === 'getLocations') {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/personal/locations', {}, {}, credentialType);
 						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
+
+					} else if (operation === 'deleteLocation') {
+						const ip = this.getNodeParameter('locationIp', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/personal/locations/${ip}`, {}, {}, credentialType);
+
+					} else if (operation === 'updateRoster') {
+						const roster = this.getNodeParameter('roster', i, '{}') as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', '/api/v1/personal/roster', roster, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -1024,6 +1201,56 @@ export class Wildix implements INodeType {
 						const phonebookId = this.getNodeParameter('phonebookId', i) as string;
 						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Phonebooks/${phonebookId}`, {}, {}, credentialType);
 
+					} else if (operation === 'getContacts') {
+						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						if (returnAll) {
+							responseData = await wildixApiRequestAllItems.call(this, `/api/v1/Phonebooks/${phonebookId}/Contacts/`, {}, credentialType);
+						} else {
+							const limit = this.getNodeParameter('limit', i) as number;
+							const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Phonebooks/${phonebookId}/Contacts/`, {}, { count: limit, start: 0 }, credentialType);
+							responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
+						}
+
+					} else if (operation === 'getContact') {
+						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;
+						const contactId = this.getNodeParameter('contactId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Phonebooks/${phonebookId}/Contacts/${contactId}`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? {};
+
+					} else if (operation === 'addContact') {
+						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;
+						const name = this.getNodeParameter('contactName', i) as string;
+						const additionalFields = this.getNodeParameter('contactAdditionalFields', i) as IDataObject;
+						const formBody: Record<string, string> = { 'data[name]': name };
+						for (const [key, value] of Object.entries(additionalFields)) {
+							if (value !== '' && value !== null && value !== undefined) {
+								formBody[`data[${key}]`] = String(value);
+							}
+						}
+						responseData = await wildixApiFormRequest.call(this, 'POST', `/api/v1/Phonebooks/${phonebookId}/Contacts`, formBody, credentialType);
+
+					} else if (operation === 'updateContact') {
+						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;
+						const contactId = this.getNodeParameter('contactId', i) as string;
+						const updateFields = this.getNodeParameter('contactUpdateFields', i) as IDataObject;
+						const formBody: Record<string, string> = {};
+						for (const [key, value] of Object.entries(updateFields)) {
+							if (value !== '' && value !== null && value !== undefined) {
+								formBody[`data[${key}]`] = String(value);
+							}
+						}
+						responseData = await wildixApiFormRequest.call(this, 'PUT', `/api/v1/phonebooks/${phonebookId}/Contacts/${contactId}`, formBody, credentialType);
+
+					} else if (operation === 'deleteContact') {
+						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;
+						const contactId = this.getNodeParameter('contactId', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Phonebooks/${phonebookId}/Contacts/${contactId}/`, {}, {}, credentialType);
+
+					} else if (operation === 'deleteContacts') {
+						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Phonebooks/${phonebookId}/Contacts/`, {}, {}, credentialType);
+
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
 					}
@@ -1062,6 +1289,11 @@ export class Wildix implements INodeType {
 						const idsRaw = this.getNodeParameter('ids', i) as string;
 						const ids = idsRaw.split(',').map((id) => id.trim()).filter(Boolean);
 						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/PBX/recordings/download', { ids }, {}, credentialType);
+
+					} else if (operation === 'download') {
+						const recordingId = this.getNodeParameter('recordingId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/PBX/recordings/download/${recordingId}`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? response;
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -1136,6 +1368,19 @@ export class Wildix implements INodeType {
 					} else if (operation === 'delete') {
 						const soundName = this.getNodeParameter('soundName', i) as string;
 						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Sounds/${soundName}`, {}, {}, credentialType);
+
+					} else if (operation === 'createDirectory') {
+						const path = this.getNodeParameter('directoryPath', i) as string;
+						responseData = await wildixApiRequest.call(this, 'POST', '/api/v1/Sounds/directory/', { path }, {}, credentialType);
+
+					} else if (operation === 'updateDirectory') {
+						const path = encodeURIComponent(this.getNodeParameter('existingDirectoryPath', i) as string);
+						const directoryUpdateFields = this.getNodeParameter('directoryUpdateFields', i) as IDataObject;
+						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/Sounds/directory/${path}`, directoryUpdateFields, {}, credentialType);
+
+					} else if (operation === 'deleteDirectory') {
+						const path = encodeURIComponent(this.getNodeParameter('existingDirectoryPath', i) as string);
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Sounds/directory/${path}`, {}, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
@@ -1234,6 +1479,34 @@ export class Wildix implements INodeType {
 						const response = await wildixApiRequest.call(this, 'GET', '/api/v1/Trunks/Prices', {}, {}, credentialType);
 						responseData = ((response.result as IDataObject)?.records as IDataObject[]) ?? [];
 
+					} else if (operation === 'createPrice') {
+						const name = this.getNodeParameter('priceName', i) as string;
+						const binaryProperty = this.getNodeParameter('priceBinaryProperty', i, '') as string;
+						const formData: Record<string, unknown> = { name };
+						if (binaryProperty) {
+							formData.upload = await this.helpers.getBinaryDataBuffer(i, binaryProperty);
+						}
+						responseData = await wildixApiUpload.call(this, '/api/v1/Trunks/Prices/', formData, credentialType);
+
+					} else if (operation === 'updatePrice') {
+						const priceId = this.getNodeParameter('priceId', i) as string;
+						const name = this.getNodeParameter('priceName', i) as string;
+						const binaryProperty = this.getNodeParameter('priceBinaryProperty', i, '') as string;
+						const formData: Record<string, unknown> = { name };
+						if (binaryProperty) {
+							formData.upload = await this.helpers.getBinaryDataBuffer(i, binaryProperty);
+						}
+						responseData = await wildixApiUpload.call(this, `/api/v1/Trunks/Prices/${priceId}/`, formData, credentialType);
+
+					} else if (operation === 'exportPrice') {
+						const priceId = this.getNodeParameter('priceId', i) as string;
+						const response = await wildixApiRequest.call(this, 'GET', `/api/v1/Trunks/Prices/${priceId}/export`, {}, {}, credentialType);
+						responseData = (response.result as IDataObject) ?? response;
+
+					} else if (operation === 'deletePrice') {
+						const priceId = this.getNodeParameter('priceId', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/Trunks/Prices/${priceId}/`, {}, {}, credentialType);
+
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
 					}
@@ -1280,6 +1553,10 @@ export class Wildix implements INodeType {
 					} else if (operation === 'markAsRead') {
 						const messageId = this.getNodeParameter('messageId', i) as string;
 						responseData = await wildixApiRequest.call(this, 'PUT', `/api/v1/VoiceMail/${messageId}`, {}, {}, credentialType);
+
+					} else if (operation === 'delete') {
+						const messageIds = this.getNodeParameter('messageIds', i) as string;
+						responseData = await wildixApiRequest.call(this, 'DELETE', `/api/v1/VoiceMail/${messageIds}/`, {}, {}, credentialType);
 
 					} else {
 						throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);

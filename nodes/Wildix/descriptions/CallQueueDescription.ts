@@ -15,6 +15,12 @@ export const callQueueOperations: INodeProperties[] = [
 				description: 'Add a user as a dynamic member to a call group',
 			},
 			{
+				name: 'Forward Call',
+				value: 'forwardCall',
+				action: 'Forward a call in a call group queue',
+				description: 'Forward an active queued call to another destination',
+			},
+			{
 				name: 'Get Dynamic Members',
 				value: 'getDynamicMembers',
 				action: 'Get dynamic members of a call group',
@@ -53,7 +59,7 @@ export const callQueueFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['callQueue'],
-				operation: ['getSettings', 'getDynamicMembers', 'addDynamicMember', 'removeDynamicMember'],
+				operation: ['getSettings', 'getDynamicMembers', 'addDynamicMember', 'removeDynamicMember', 'forwardCall'],
 			},
 		},
 		description: 'ID of the call queue or call group',
@@ -69,5 +75,27 @@ export const callQueueFields: INodeProperties[] = [
 		placeholder: '1001',
 		displayOptions: { show: { resource: ['callQueue'], operation: ['addDynamicMember', 'removeDynamicMember'] } },
 		description: 'Extension of the member to add or remove',
+	},
+
+	// ── Forward Call ──────────────────────────────────────────────────────────
+	{
+		displayName: 'SIP Call ID',
+		name: 'sipCallId',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e21b3ecf4f2a4f48b0b1f3b9f5f2d7a1@pbx.local',
+		displayOptions: { show: { resource: ['callQueue'], operation: ['forwardCall'] } },
+		description: 'SIP Call ID of an active queue call to forward',
+	},
+	{
+		displayName: 'Destination',
+		name: 'destination',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '101',
+		displayOptions: { show: { resource: ['callQueue'], operation: ['forwardCall'] } },
+		description: 'Extension or destination number to forward the call to',
 	},
 ];

@@ -13,9 +13,12 @@ export const colleagueOperations: INodeProperties[] = [
 			{ name: 'Delete', value: 'delete', action: 'Delete a colleague' },
 			{ name: 'Get', value: 'get', action: 'Get a colleague' },
 			{ name: 'Get Many', value: 'getMany', action: 'Get many colleagues' },
+			{ name: 'Get Many (Basic)', value: 'getManyBasic', action: 'Get many colleagues basic' },
 			{ name: 'Get My Info', value: 'getMe', action: 'Get my info' },
+			{ name: 'Get User Presence', value: 'getUserPresence', action: 'Get user presence by extension' },
 			{ name: 'Set Batch Presence', value: 'setBatchPresence', action: 'Set batch presence for colleagues' },
 			{ name: 'Update', value: 'update', action: 'Update a colleague' },
+			{ name: 'Update User Presence', value: 'updateUserPresence', action: 'Update user presence by extension' },
 		],
 		default: 'getMany',
 	},
@@ -39,7 +42,7 @@ export const colleagueFields: INodeProperties[] = [
 		name: 'returnAll',
 		type: 'boolean',
 		default: false,
-		displayOptions: { show: { resource: ['colleague'], operation: ['getMany'] } },
+		displayOptions: { show: { resource: ['colleague'], operation: ['getMany', 'getManyBasic'] } },
 		description: 'Whether to return all results or only up to a given limit',
 	},
 	{
@@ -49,7 +52,7 @@ export const colleagueFields: INodeProperties[] = [
 		typeOptions: { minValue: 1 },
 		default: 50,
 		displayOptions: {
-			show: { resource: ['colleague'], operation: ['getMany'], returnAll: [false] },
+			show: { resource: ['colleague'], operation: ['getMany', 'getManyBasic'], returnAll: [false] },
 		},
 		description: 'Max number of results to return',
 	},
@@ -59,7 +62,7 @@ export const colleagueFields: INodeProperties[] = [
 		type: 'collection',
 		placeholder: 'Add Filter',
 		default: {},
-		displayOptions: { show: { resource: ['colleague'], operation: ['getMany'] } },
+		displayOptions: { show: { resource: ['colleague'], operation: ['getMany', 'getManyBasic'] } },
 		options: [
 			{
 				displayName: 'Search',
@@ -229,6 +232,45 @@ export const colleagueFields: INodeProperties[] = [
 		default: '',
 		displayOptions: { show: { resource: ['colleague'], operation: ['copyPreferences'] } },
 		description: 'Numeric ID of the colleague to copy preferences from',
+	},
+
+	// ── User Presence (by extension) ───────────────────────────────────────────
+	{
+		displayName: 'Extension',
+		name: 'presenceExtension',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '1001',
+		displayOptions: { show: { resource: ['colleague'], operation: ['getUserPresence', 'updateUserPresence'] } },
+		description: 'Extension of the user whose presence to get or update',
+	},
+	{
+		displayName: 'Status',
+		name: 'presenceStatus',
+		type: 'options',
+		required: true,
+		default: 'available',
+		displayOptions: { show: { resource: ['colleague'], operation: ['updateUserPresence'] } },
+		options: [
+			{ name: 'Available', value: 'available' },
+			{ name: 'Away', value: 'away' },
+			{ name: 'DND', value: 'dnd' },
+			{ name: 'MUR', value: 'mur' },
+		],
+		description: 'Presence status to set',
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'userPresenceFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: { show: { resource: ['colleague'], operation: ['updateUserPresence'] } },
+		options: [
+			{ displayName: 'Message', name: 'message', type: 'string', default: '', description: 'Presence message (e.g. "lunch")' },
+			{ displayName: 'Until', name: 'until', type: 'string', default: '', placeholder: '19/09/2017 11:30', description: 'Expiry of the presence status, format "DD/MM/YYYY HH:mm" in UTC' },
+		],
 	},
 
 	// ── Set Batch Presence ─────────────────────────────────────────────────────

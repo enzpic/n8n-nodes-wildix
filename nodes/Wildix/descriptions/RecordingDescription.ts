@@ -10,6 +10,7 @@ export const recordingOperations: INodeProperties[] = [
 		options: [
 			{ name: 'Get Many', value: 'getMany', action: 'Get many recordings', description: 'Return a list of call recordings' },
 			{ name: 'Create Download Task', value: 'createDownloadTask', action: 'Create a recording download task', description: 'Create a task to download recordings as a ZIP archive' },
+			{ name: 'Download', value: 'download', action: 'Download a recording', description: 'Download a single recording by ID' },
 		],
 		default: 'getMany',
 	},
@@ -56,5 +57,16 @@ export const recordingFields: INodeProperties[] = [
 		default: '',
 		displayOptions: { show: { resource: ['recording'], operation: ['createDownloadTask'] } },
 		description: 'Comma-separated list of recording IDs to include in the download',
+	},
+
+	// ── Download ──────────────────────────────────────────────────────────────
+	{
+		displayName: 'Recording ID',
+		name: 'recordingId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['recording'], operation: ['download'] } },
+		description: 'ID of the recording to download',
 	},
 ];

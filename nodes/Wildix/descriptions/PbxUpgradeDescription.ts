@@ -11,6 +11,7 @@ export const pbxUpgradeOperations: INodeProperties[] = [
 			{ name: 'Check for Updates', value: 'check', action: 'Check for PBX updates', description: 'Check if firmware updates are available' },
 			{ name: 'Get Upgrade Settings', value: 'getSettings', action: 'Get upgrade settings', description: 'Return upgrade configuration settings' },
 			{ name: 'Get Upgrade Status', value: 'getStatus', action: 'Get upgrade status', description: 'Return the current upgrade status' },
+			{ name: 'Start Check', value: 'startCheck', action: 'Start an update check', description: 'Trigger a new check for available firmware updates' },
 			{ name: 'Start Upgrade', value: 'start', action: 'Start a PBX upgrade', description: 'Start a firmware upgrade' },
 			{ name: 'Update Upgrade Settings', value: 'updateSettings', action: 'Update upgrade settings', description: 'Update upgrade configuration settings' },
 		],

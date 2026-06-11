@@ -8,6 +8,8 @@ export const alarmClockOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: { show: { resource: ['alarmClock'] } },
 		options: [
+			{ name: 'Delete', value: 'delete', action: 'Delete an alarm clock', description: 'Remove a scheduled alarm clock by ID' },
+			{ name: 'Get', value: 'get', action: 'Get an alarm clock', description: 'Retrieve a scheduled alarm clock by ID' },
 			{ name: 'Originate', value: 'originate', action: 'Originate an alarm clock call', description: 'Schedule an alarm clock call to a user' },
 		],
 		default: 'originate',
@@ -15,6 +17,17 @@ export const alarmClockOperations: INodeProperties[] = [
 ];
 
 export const alarmClockFields: INodeProperties[] = [
+	// ── Get / Delete ────────────────────────────────────────────────────────────
+	{
+		displayName: 'Alarm Clock ID',
+		name: 'alarmClockId',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: { show: { resource: ['alarmClock'], operation: ['get', 'delete'] } },
+		description: 'ID of the alarm clock',
+	},
+
 	// ── Originate ─────────────────────────────────────────────────────────────
 	{
 		displayName: 'Extension',
