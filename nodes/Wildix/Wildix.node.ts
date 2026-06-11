@@ -1240,7 +1240,7 @@ export class Wildix implements INodeType {
 								formBody[`data[${key}]`] = String(value);
 							}
 						}
-						responseData = await wildixApiFormRequest.call(this, 'PUT', `/api/v1/phonebooks/${phonebookId}/Contacts/${contactId}`, formBody, credentialType);
+						responseData = await wildixApiFormRequest.call(this, 'PUT', `/api/v1/Phonebooks/${phonebookId}/Contacts/${contactId}`, formBody, credentialType);
 
 					} else if (operation === 'deleteContact') {
 						const phonebookId = this.getNodeParameter('contactPhonebookId', i) as string;

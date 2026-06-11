@@ -35,7 +35,9 @@ export const deviceOperations: INodeProperties[] = [
 			{
 				name: 'Get iOS Config',
 				value: 'getIosConfig',
-				action: 'Get an ios config',
+				// "iOS" is a proper noun (matches displayName); the miscased rule's sentence-case autofix would mangle it
+				// eslint-disable-next-line n8n-nodes-base/node-param-operation-option-action-miscased
+				action: 'Get an iOS config',
 				description: 'Retrieve the iOS provisioning configuration',
 			},
 			{
